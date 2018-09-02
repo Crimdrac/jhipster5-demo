@@ -34,7 +34,8 @@ node {
         } catch(err) {
             throw err
         } finally {
-            junit '**/target/test-results/jest/TESTS-*.xml'
+            // Jenkins pipeline cannot handle the jest report format
+            // junit '**/target/test-results/jest/TESTS-*.xml'
         }
     }
 
