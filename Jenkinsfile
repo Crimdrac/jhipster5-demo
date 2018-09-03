@@ -1,6 +1,8 @@
 #!/usr/bin/env groovy
 
 node {
+    checkout scm
+
     stage('check java') {
         sh "java -version"
     }
