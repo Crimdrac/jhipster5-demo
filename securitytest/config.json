@@ -1,5 +1,5 @@
 {
-  "burp_lib": "burp-rest-api-1.0.3.jar",
+  "burp_lib": "securitytest/burp-rest-api-1.0.3.jar",
   "proxy_url": "localhost:8888",
   "api_url": "http://localhost:8090",
   "report_type": "HTLM",
@@ -11,6 +11,8 @@
     "https://crimdrac-jhipster-5-demo.herokuapp.com/api"
   ],
   "targetScope": {
-    "include": [ "https://crimdrac-jhipster-5-demo.herokuapp.com" ]
+    "include": [ "https://crimdrac-jhipster-5-demo.herokuapp.com" ],
+    "exclude": [ ]
+
   }
 }
