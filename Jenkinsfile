@@ -48,16 +48,9 @@ node {
 
     stage('securitytest') {
        try {
-            sh "cd securitytest"
-            sh "npm install"
-            sh "./burpctl.js start"
-            sh "./burpctl.js crawl"
-            sh "./burpctl.js report -f report.html"
-            sh "./burpctl.js stop"
+            sh "securitytest/securitytest.sh"
         } catch(err) {
             throw err
-        } finally {
-            sh "cd .."
         }
     }
 
