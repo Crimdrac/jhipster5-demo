@@ -12,6 +12,8 @@ echo Running Scan
 
 ./burpctl.js start
 
+curl -k -m 180 https://crimdrac-jhipster-5-demo.herokuapp.com
+
 ./burpctl.js crawl
 
 ./burpctl.js scan
