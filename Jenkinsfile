@@ -46,4 +46,19 @@ node {
         archiveArtifacts artifacts: '**/target/*.war', fingerprint: true
     }
 
+    stage('securitytest') {
+       try {
+            sh "cd securitytest"
+            sh "npm install"
+            sh "./burpctl.js start"
+            sh "./burpctl.js crawl"
+            sh "./burpctl.js report -f report.html"
+            sh "./burpctl.js stop"
+        } catch(err) {
+            throw err
+        } finally {
+            sh "cd .."
+        }
+    }
+
 }
