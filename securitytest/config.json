@@ -1,5 +1,5 @@
 {
-  "burp_lib": "securitytest/burp-rest-api-1.0.3.jar",
+  "burp_lib": "burp-rest-api-1.0.3.jar",
   "proxy_url": "localhost:8888",
   "api_url": "http://localhost:8090",
   "report_type": "HTLM",

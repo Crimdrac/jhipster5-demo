@@ -1,13 +1,23 @@
-#!/bin/bash
+#!/bin/sh
 
 SCRIPTDIR=$(dirname $0)
 
-$SCRIPTDIR/burpctl.js start $SCRIPTDIR/config.json
+cd $SCRIPTDIR
 
-$SCRIPTDIR/burpctl.js crawl $SCRIPTDIR/config.json
+echo Installing NPM in $SCRIPTDIR
 
-$SCRIPTDIR/burpctl.js scan $SCRIPTDIR/config.json
+npm install
 
-$SCRIPTDIR/burpctl.js report $SCRIPTDIR/config.json -f $SCRIPTDIR/report.html
+echo Running Scan
 
-$SCRIPTDIR/burpctl.js stop $SCRIPTDIR/config.json
+./burpctl.js start
+
+./burpctl.js crawl
+
+./burpctl.js scan
+
+./burpctl.js report -f report.html
+
+./burpctl.js stop
+
+cd ..
