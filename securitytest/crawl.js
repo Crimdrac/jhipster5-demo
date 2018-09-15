@@ -6,7 +6,7 @@ const creds = require('./creds');
 
 async function run() {
   const browser = await puppeteer.launch({ 
-    headless: true,
+    headless: false,
     args: ['--proxy-server=localhost:8080'],
     ignoreHTTPSErrors: true 
   });
@@ -29,6 +29,25 @@ async function run() {
 
   await page.click('button[jhitranslate="login.form.button"]');
   await page.waitForSelector('span[jhitranslate="home.logged.message"]');
+
+
+  await page.click('span[jhitranslate="global.menu.entities.main"]');
+  await page.click('span[jhitranslate="global.menu.entities.blog"]');
+
+  await page.click('span[jhitranslate="global.menu.entities.main"]');
+  await page.click('span[jhitranslate="global.menu.entities.entry"]');
+
+  await page.click('span[jhitranslate="global.menu.entities.main"]');
+  await page.click('span[jhitranslate="global.menu.entities.tag"]');
+
+  await page.click('span[jhitranslate="global.menu.admin.main"]');
+  //await page.click('span[jhitranslate="global.menu.admin.userManagement"]');
+  //await page.click('button.btn.btn-info.btn-sm[tabindex="0"]:nth-of-type(1)');
+
+  await page.click('span[jhitranslate="global.menu.account.main"]');
+  await page.click('span[jhitranslate="global.menu.account.settings"]');
+  await page.click('button[jhitranslate="settings.form.button"]');
+
   await page.close();
   await browser.close();
 }
