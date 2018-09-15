@@ -1,24 +1,23 @@
 #!/usr/bin/env node
 'use strict';
+
 const program = require('commander');
 const figlet = require('figlet');
 const chalk = require('chalk');
 const tmp = require('tmp');
-const format = require('string-format')
+const format = require('string-format');
 const fs = require('fs');
 const path = require('path');
 const request = require('sync-request');
 const spawn = require('child_process').spawn;
 
-
-const version = '0.2.0';
-const default_configfile = 'config.json'
+const default_configfile = 'config.json';
 const max_startup_time = 20;
 
-format.extend(String.prototype, {})
+format.extend(String.prototype, {});
 
 program
-    .version(version);
+    .version(getVersion());
 
 program
     .command('crawl [config]')
@@ -34,27 +33,23 @@ program
     .command('report [config]')
     .description('Generate a report using the specified configuration file')
     .option('-f, --file <file>', 'Report file')
+    .option('-t, --type <type>', 'Report type', /^(html|xml)$/i, 'html')
     .action((config, options) => reportAction(config, options));
 
 program
     .command('start [config]')
-    .description('Stopping burp using the specified configuration file')
+    .description('Stopping Burp using the specified configuration file')
     .action((config) => startAction(config));
 
 program
     .command('stop [config]')
-    .description('Stopping burp using the specified configuration file')
+    .description('Stopping Burp using the specified configuration file')
     .action((config) => stopAction(config));
 
 program
     .command('status [config]')
     .description('Return the Burp status using the specified configuration file')
     .action((config) => statusAction(config));
-
-program
-    .command('all [config]')
-    .description('Crawl, scan, and generate a report using the specified configuration file')
-    .action((config) => allAction(config));
 
 program.on('command:*', function () {
     console.error('Invalid command: %s\nSee --help for a list of available commands.', program.args.join(' '));
@@ -70,25 +65,27 @@ if (!process.argv.slice(2).length) {
 
 function printIntro() {
     console.log(
-            chalk.blue(
-                figlet.textSync('Burp Controller', { font: 'ogre'})
+        chalk.blue(
+            figlet.textSync('Burp Controller', { font: 'ogre'})
         )
     );
-    console.log('Burp Controller ' + version);
+    console.log('Burp Controller {}'.format(getVersion()));
     console.log('');
+
 }
 
 function stopAction(configfile) {
     try {
         printIntro();
         let config = loadConfiguration(configfile || default_configfile);
-        console.log('[+] Shutting down the Burp Suite ...');
+        console.log('[+] Shutting down Burp Suite ...');
         let response = request('GET', '{}/burp/stop'.format(config.api_url));
         handleResponse(response);
         console.log('[-] Burp Suite is stopped');
     }
     catch(e) {
-            console.log('Stop failed: {}'.format(e.message));
+        console.log('Stop failed: {}'.format(e.message));
+        process.exit(1);
     }
 }
 
@@ -96,7 +93,7 @@ function startAction(configfile) {
     try {
         printIntro();
         let config = loadConfiguration(configfile || default_configfile);
-        console.log('[+] Starting the Burp Suite ...');
+        console.log('[+] Starting Burp Suite ...');
 
         let prc = spawn('java',  ['-jar', config.burp_lib, '-Xmx1024M', '--headless.mode=true'], {
             shell: true,
@@ -106,21 +103,23 @@ function startAction(configfile) {
         console.log("[-] Burp Suite pid: {}".format(prc.pid));
         prc.unref();
         waitUntilBurpIsReady(config.api_url);
+        updateScope(config.api_url, config.targetScope);
         console.log('[-] Burp Suite is started');
-        process.exit();
     }
     catch(e) {
         console.log('Start failed: {}'.format(e.message));
+        process.exit(1);
     }
 }
 
 function reportAction(configfile, options) {
     try {
         printIntro();
-        getReport(loadConfiguration(configfile || default_configfile).api_url, options.file);
+        getReport(loadConfiguration(configfile || default_configfile).api_url, options.file, options.type);
     }
     catch(e) {
         console.log('Report download failed: {}'.format(e.message));
+        process.exit(1);
     }
 }
 
@@ -135,7 +134,7 @@ function scanAction(configfile) {
         });
 
         pollScanStatus(config.api_url);
-        console.log('[+] Scan completed')
+        console.log('[+] Scan completed');
         console.log('[+] Scan issues:');
 
         let issueNames = new Set();
@@ -144,11 +143,12 @@ function scanAction(configfile) {
         });
 
         issueNames.forEach(function(issue) {
-            console.log('    {}'.format(issue));
+            console.log('  - {}'.format(issue));
         });
     }
     catch(e) {
         console.log('Scan failed: {}'.format(e.message));
+        process.exit(1);
     }
 }
 
@@ -167,6 +167,7 @@ function crawlAction(configfile) {
     }
     catch(e) {
         console.log('Crawl failed: {}'.format(e.message));
+        process.exit(1);
     }
 }
 
@@ -181,26 +182,23 @@ function statusAction(configfile) {
     }
     catch(e) {
         console.log('Retrieving status failed: {}'.format(e.message));
+        process.exit(1);
     }
-}
-
-function allAction(configfile) {
-    throw new Error('Not implemented');
 }
 
 function getBurpVersion(apiUrl) {
     let response = request('GET', '{}/burp/versions'.format(apiUrl));
     handleResponse(response);
-    return JSON.parse(response.getBody('utf8'))['burpVersion']
+    return JSON.parse(response.getBody('utf8')).burpVersion;
 }
 
-function getReport(apiUrl, reportfile) {
-    let response = request('GET', '{}/burp/report?reportType=HTML'.format(apiUrl));
+function getReport(apiUrl, reportfile, reporttype) {
+    let response = request('GET', '{}/burp/report?reportType={}'.format(apiUrl, reporttype.toUpperCase()));
     handleResponse(response);
     console.log('[+] Downloading HTML/XML report');
     let filename = reportfile || path.join(tmp.dirSync().name, 'burp-report-{}.{}'.format(
         new Date().toISOString(),
-        'html'));
+        reporttype));
 
     fs.writeFile(filename, response.body, function(err) {
         if (err) {
@@ -212,11 +210,11 @@ function getReport(apiUrl, reportfile) {
 
 function waitUntilBurpIsReady(apiUrl) {
     let elapsedSeconds = 0;
-    process.stdout.write('[-] Waiting for Burp Suite');
+    process.stdout.write('[-] Waiting for Burp Suite...');
     let burpVersion;
     do {
         sleep(1000);
-        elapsedSeconds += 1
+        elapsedSeconds += 1;
         try {
             burpVersion = getBurpVersion(apiUrl);
             break;
@@ -227,13 +225,13 @@ function waitUntilBurpIsReady(apiUrl) {
     if (burpVersion) {
         process.stdout.write('success');
         console.log();
+        console.log('[-] {} is running'.format(burpVersion));
     }
     else {
         process.stdout.write('failed (timeout)');
         console.log();
         throw new Error("Burp Suite is not reachable");
     }
-    console.log();
 }
 
 function pollCrawlStatus(apiUrl) {
@@ -262,7 +260,7 @@ function pollScanStatus(apiUrl) {
 function updateScope(apiUrl, scope) {
     console.log('[+] Updating the scope ...');
     scope.include.forEach(function(entry) {
-       includeInScope(apiUrl, entry)
+        includeInScope(apiUrl, entry);
     });
     scope.exclude.forEach(function(entry) {
         excludeFromScope(apiUrl, entry);
@@ -294,7 +292,7 @@ function crawl(apiUrl, baseUrl) {
 
 function crawlStatus(apiUrl) {
     let response = request('GET', '{}/burp/spider/status'.format(apiUrl));
-   return JSON.parse(response.getBody('utf8'))['spiderPercentage'];
+    return JSON.parse(response.getBody('utf8')).spiderPercentage;
 }
 
 function scan(apiUrl, baseUrl) {
@@ -306,12 +304,12 @@ function scan(apiUrl, baseUrl) {
 
 function scanStatus(apiUrl) {
     let response = request('GET', '{}/burp/scanner/status'.format(apiUrl));
-    return JSON.parse(response.getBody('utf8'))['scanPercentage'];
+    return JSON.parse(response.getBody('utf8')).scanPercentage;
 }
 
 function getIssues(apiUrl) {
     let response = request('GET', '{}/burp/scanner/issues'.format(apiUrl));
-    return JSON.parse(response.getBody('utf8'))['issues'];
+    return JSON.parse(response.getBody('utf8')).issues;
 }
 
 function loadConfiguration(filename) {
@@ -347,4 +345,15 @@ function handleResponse(response) {
 
 function sleep(ms) {
     Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
+function getVersion() {
+    let packagefile = path.resolve(__dirname + "/../package.json");
+    try {
+        let packageconfig = fs.readFileSync(packagefile);
+        return JSON.parse(packageconfig).version;
+    } catch(e) {
+        return 'unknown';
+    }
+
 }
