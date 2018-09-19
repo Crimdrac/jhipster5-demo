@@ -11,45 +11,52 @@ async function run() {
     ignoreHTTPSErrors: true 
   });
 
-
   const page = await browser.newPage();
   page.on('request', request => {
-      console.log('Request url: ' + request.url());
+    console.log('Request url: ' + request.url());
   });
 
-  await page.goto('https://crimdrac-jhipster-5-demo.herokuapp.com');
-
-  await page.click('span[jhitranslate="global.menu.account.main"]');
-  await page.click('span[jhitranslate="global.menu.account.login"]');
-
-  await page.click('#username');
-  await page.keyboard.type(creds.username);
-  await page.click('#password');
-  await page.keyboard.type(creds.password);
-
-  await page.click('button[jhitranslate="login.form.button"]');
-  await page.waitForSelector('span[jhitranslate="home.logged.message"]');
+  try {
 
 
-  await page.click('span[jhitranslate="global.menu.entities.main"]');
-  await page.click('span[jhitranslate="global.menu.entities.blog"]');
+      await page.goto('https://crimdrac-jhipster-5-demo.herokuapp.com', {timeout: 180000});
 
-  await page.click('span[jhitranslate="global.menu.entities.main"]');
-  await page.click('span[jhitranslate="global.menu.entities.entry"]');
+      await page.click('span[jhitranslate="global.menu.account.main"]');
+      await page.click('span[jhitranslate="global.menu.account.login"]');
 
-  await page.click('span[jhitranslate="global.menu.entities.main"]');
-  await page.click('span[jhitranslate="global.menu.entities.tag"]');
+      await page.click('#username');
+      await page.keyboard.type(creds.username);
+      await page.click('#password');
+      await page.keyboard.type(creds.password);
 
-  await page.click('span[jhitranslate="global.menu.admin.main"]');
-  //await page.click('span[jhitranslate="global.menu.admin.userManagement"]');
-  //await page.click('button.btn.btn-info.btn-sm[tabindex="0"]:nth-of-type(1)');
+      await page.click('button[jhitranslate="login.form.button"]');
+      await page.waitForSelector('span[jhitranslate="home.logged.message"]');
 
-  await page.click('span[jhitranslate="global.menu.account.main"]');
-  await page.click('span[jhitranslate="global.menu.account.settings"]');
-  await page.click('button[jhitranslate="settings.form.button"]');
 
-  await page.close();
-  await browser.close();
+      await page.click('span[jhitranslate="global.menu.entities.main"]');
+      await page.click('span[jhitranslate="global.menu.entities.blog"]');
+
+      await page.click('span[jhitranslate="global.menu.entities.main"]');
+      await page.click('span[jhitranslate="global.menu.entities.entry"]');
+
+      await page.click('span[jhitranslate="global.menu.entities.main"]');
+      await page.click('span[jhitranslate="global.menu.entities.tag"]');
+
+      await page.click('span[jhitranslate="global.menu.admin.main"]');
+      //await page.click('span[jhitranslate="global.menu.admin.userManagement"]');
+      //await page.click('button.btn.btn-info.btn-sm[tabindex="0"]:nth-of-type(1)');
+
+      await page.click('span[jhitranslate="global.menu.account.main"]');
+      await page.click('span[jhitranslate="global.menu.account.settings"]');
+      await page.click('button[jhitranslate="settings.form.button"]');
+
+      await page.close();
+      await browser.close();
+  }
+  catch(error) {
+      console.log(error);
+      browser.close();
+  }
 }
 
 run();
