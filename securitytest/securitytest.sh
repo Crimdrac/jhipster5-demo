@@ -6,22 +6,20 @@ cd $SCRIPTDIR
 
 echo Installing NPM in $SCRIPTDIR
 
-npm install
-
 echo Running Scan
 
-./burpctl.js start
+burpctl start
 
 echo curl -k -m 180 https://crimdrac-jhipster-5-demo.herokuapp.com
 
 ./crawl.js
 
-./burpctl.js crawl
+burpctl crawl
 
-./burpctl.js scan
+burpctl scan
 
-./burpctl.js report -f report.html
+burpctl report -f report.html
 
-./burpctl.js stop
+burpctl stop
 
 cd ..
