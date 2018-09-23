@@ -17,7 +17,7 @@ async function run() {
   });
 
   try {
-
+      console.log('Starting crawl');
 
       await page.goto('https://crimdrac-jhipster-5-demo.herokuapp.com', {timeout: 180000});
 
@@ -52,10 +52,12 @@ async function run() {
 
       await page.close();
       await browser.close();
+      console.log('Crawl finished');
   }
   catch(error) {
       console.log(error);
       browser.close();
+      console.log('Crawl aborted');
   }
 }
 
