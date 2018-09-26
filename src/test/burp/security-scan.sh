@@ -25,4 +25,4 @@ burpctl report -f ../../../target/burp/security-scan-report.html
 
 burpctl stop
 
-cd $CURRENTDIR
+cd "$CURRENTDIR"
