@@ -2,7 +2,7 @@
 'use strict';
 
 const puppeteer = require('puppeteer');
-const creds = require('./creds');
+const creds = require('./credentials');
 
 async function run() {
   const browser = await puppeteer.launch({ 
