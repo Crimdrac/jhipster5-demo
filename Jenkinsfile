@@ -41,8 +41,8 @@ node {
 
     stage('securitytest') {
        try {
-            sh "securitytest/securitytest.sh"
-            archiveArtifacts artifacts: '**/securitytest/*.html', fingerprint: true
+            sh "src/test/burp/security-scan.sh"
+            archiveArtifacts artifacts: '**/target/burp/*.html', fingerprint: true
         } catch(err) {
             throw err
         }
