@@ -6,7 +6,7 @@ const creds = require('./credentials');
 
 async function run() {
   const browser = await puppeteer.launch({ 
-    headless: false,
+    headless: true,
     args: ['--proxy-server=localhost:8080'],
     ignoreHTTPSErrors: true 
   });
