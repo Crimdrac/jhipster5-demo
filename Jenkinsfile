@@ -55,6 +55,7 @@ node {
                 sh "HTTPS_PROXY=http://localhost:8080 newman run ../postman/accesscontrol-tests.json -k"
                 sh "burpctl crawl"
                 sh "burpctl scan"
+                sh "mkdir -p '${workspace}/target/burp'
                 sh "burpctl report -f '${workspace}/target/burp/security-scan-report.html'"
                 sh "burpctl stop"
             }
