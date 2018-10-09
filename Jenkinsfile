@@ -11,7 +11,6 @@ node {
         sh "./mvnw com.github.eirslett:frontend-maven-plugin:yarn"
     }
     stage('backend tests') {
-        try {
             sh "./mvnw test"
         } catch(err) {
             throw err
