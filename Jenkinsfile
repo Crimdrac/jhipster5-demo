@@ -34,17 +34,35 @@ node {
     //    archiveArtifacts artifacts: '**/target/*.war', fingerprint: true
     //}
 
-    stage('accesscontrol-tests') {
-           sh "newman run src/test/postman/accesscontrol-tests.json -k -r json,cli,html --reporter-html-export ./target/newman/accesscontrol-test-report.html"
-           archiveArtifacts artifacts: '**/target/newman/*.html', fingerprint: true
-     }
-
-    stage('securitytest') {
-       try {
-            sh "src/test/burp/security-scan.sh"
-            archiveArtifacts artifacts: '**/target/burp/*.html', fingerprint: true
+    stage('Security testing stage: access control tests') {
+        try {
+            // deploy to security testing stage
+            sh "newman run src/test/postman/accesscontrol-tests.json -k -r cli,html --reporter-html-export ./target/newman/accesscontrol-test-report.html"
         } catch(err) {
             throw err
+        } finally {
+            archiveArtifacts artifacts: 'target/newman/accesscontrol-test-report.html', fingerprint: true
+            // undeploy application
+        }
+    }
+
+    stage('Security testing stage: security scan') {
+        try {
+            // deploy to security testing stage
+            dir('src/test/burp/') {
+                sh "burpctl start"
+                sh "./crawl.js"
+                sh "HTTPS_PROXY=http://localhost:8080 newman run ../postman/accesscontrol-tests.json -k"
+                sh "burpctl crawl"
+                sh "burpctl scan"
+                sh "burpctl report -f '${workspace}/target/burp/security-scan-report.html'"
+                sh "burpctl stop"
+            }
+        } catch(err) {
+            throw err
+        } finally {
+            archiveArtifacts artifacts: 'target/burp/security-scan-report.html'
+            // undeploy application
         }
     }
 }
