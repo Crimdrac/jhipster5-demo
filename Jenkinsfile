@@ -29,10 +29,10 @@ node {
             // junit '**/target/test-results/jest/TESTS-*.xml'
         }
     }
-    // stage('package and deploy') {
-    //    sh "./mvnw com.heroku.sdk:heroku-maven-plugin:2.0.5:deploy -DskipTests -Pprod -Dheroku.appName=crimdrac-jhipster-5-demo"
-    //    archiveArtifacts artifacts: '**/target/*.war', fingerprint: true
-    //}
+    stage('package and deploy') {
+        sh "./mvnw com.heroku.sdk:heroku-maven-plugin:2.0.5:deploy -DskipTests -Pprod -Dheroku.appName=crimdrac-jhipster-5-demo"
+        archiveArtifacts artifacts: '**/target/*.war', fingerprint: true
+    }
 
     stage('Security testing stage: access control tests') {
         try {
