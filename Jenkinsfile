@@ -32,7 +32,7 @@ node {
     stage('Security testing stage: package and deploy') {
         sh "./mvnw com.heroku.sdk:heroku-maven-plugin:2.0.5:deploy -DskipTests -Pprod -Dheroku.appName=crimdrac-jhipster-5-demo"
         archiveArtifacts artifacts: 'target/*.war', fingerprint: true
-        sh "curl -k -I --keepalive-time 3600 --connect-timeout 3600 https://crimdrac-jhipster-5-demo.herokuapp.com"
+        sh "curl -k -I --max-time 3600 --keepalive-time 3600 --connect-timeout 3600 https://crimdrac-jhipster-5-demo.herokuapp.com"
     }
 
     stage('Security testing stage: access control tests') {
