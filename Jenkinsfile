@@ -3,14 +3,14 @@
 node {
     checkout scm
 
-    stage('build') {
+    stage('Commit stage: build') {
         sh "java -version"
         sh "chmod +x mvnw"
         sh "./mvnw clean"
         sh "./mvnw com.github.eirslett:frontend-maven-plugin:install-node-and-yarn -DnodeVersion=v8.11.3 -DyarnVersion=v1.6.0"
         sh "./mvnw com.github.eirslett:frontend-maven-plugin:yarn"
     }
-    stage('backend tests') {
+    stage('Commit stage: backend tests') {
         try {
             sh "./mvnw test"
         } catch(err) {
@@ -19,7 +19,7 @@ node {
             junit '**/target/surefire-reports/TEST-*.xml'
         }
     }
-     stage('frontend tests') {
+     stage('Commit stage: frontend tests') {
         try {
             sh "./mvnw com.github.eirslett:frontend-maven-plugin:yarn -Dfrontend.yarn.arguments=test"
         } catch(err) {
@@ -29,10 +29,10 @@ node {
             // junit '**/target/test-results/jest/TESTS-*.xml'
         }
     }
-    stage('package and deploy') {
+    stage('Security testing stage: package and deploy') {
         sh "./mvnw com.heroku.sdk:heroku-maven-plugin:2.0.5:deploy -DskipTests -Pprod -Dheroku.appName=crimdrac-jhipster-5-demo"
         archiveArtifacts artifacts: '**/target/*.war', fingerprint: true
-        sh "curl -k -I --connect-timeout 10000 https://crimdrac-jhipster-5-demo.herokuapp.com"
+        sh "curl -k -I --keepalive-time 3600 --connect-timeout 3600 https://crimdrac-jhipster-5-demo.herokuapp.com"
     }
 
     stage('Security testing stage: access control tests') {
